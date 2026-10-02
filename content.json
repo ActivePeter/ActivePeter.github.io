@@ -1,0 +1,93 @@
+{
+  "anchor": "spawn",
+  "blocks": [
+    {
+      "id": "about",
+      "title": "Yichen Zhong (hanbaoaaa | pa)",
+      "pos": [
+        0,
+        12,
+        -24
+      ],
+      "width": 520,
+      "body": "I like coding. pushing ai coding, bro.\n\nWorking at **Goodput AI**, focusing on KVCache / Inference / MaaS. Hangzhou, China.\n\nCare about: Efficiency Improvement, Automation, Standardization, Performance Testing, Performance Optimization, System Building, Storage / Caching, AI Infrastructure, Cluster, Cloud Native.\n\nLooking for collaborators who are passionate about large scale inference optimization and distributed systems.\n\n[GitHub](https://github.com/ActivePeter)"
+    },
+    {
+      "id": "this-world",
+      "title": "This world",
+      "pos": [
+        0,
+        20,
+        -60
+      ],
+      "width": 420,
+      "body": "You are flying through a distributed voxel world written in Rust + Bevy, compiled to WebAssembly. On a server it runs as gateway + Region shards; here the terrain is generated in your browser.\n\nWASD to fly, Space / Shift up and down, hold Ctrl to speed up."
+    },
+    {
+      "id": "fluxon",
+      "title": "2026 · Fluxon",
+      "pos": [
+        40,
+        16,
+        -40
+      ],
+      "width": 480,
+      "body": "An AI-native distributed data plane built in Rust that supports high performance RPC, KV Cache, Message Queue, and File & Object Acceleration.\n\n[Tele-AI/Fluxon](https://github.com/Tele-AI/Fluxon)"
+    },
+    {
+      "id": "vibe-vscode",
+      "title": "2026 · vibe_vscode",
+      "pos": [
+        64,
+        18,
+        -20
+      ],
+      "width": 440,
+      "body": "A custom VS Code distribution engineered for seamless vibe coding across projects and devices.\n\n[ActivePeter/vibe-vscode](https://github.com/ActivePeter/vibe-vscode)"
+    },
+    {
+      "id": "infra-earlier",
+      "title": "Infrastructure & Distributed Systems",
+      "pos": [
+        72,
+        14,
+        16
+      ],
+      "width": 500,
+      "body": "- **2024** [wasm_serverless](https://github.com/ActivePeter/wasm_serverless): serverless distributed system on WebAssembly, data-driven event graphs, integrated storage.\n- **2024** [telego](https://github.com/AI-Infra-Team/telego): all-in-one multi-cluster configuration manager.\n- **2023** [perf_cache](https://github.com/ActivePeter/Hackathon-2023/tree/master/baibaidui): distributed file block cache with a cache router.\n- **2023** [rust_concurr_skiplist](https://github.com/ActivePeter/rust_hackathon_kv): grow-only lock-free concurrent skip list in Rust.\n- **2022** [mit_6.824_learning](https://github.com/ActivePeter/mit_6.824_learning), [pakv_talentplan](https://github.com/ActivePeter/pakv_talentplan)\n- **2021** [learn_cmu15_445](https://github.com/ActivePeter/learn_cmu15_445), [learn_mit_s6.081](https://github.com/ActivePeter/learn_mit_s6.081)"
+    },
+    {
+      "id": "games",
+      "title": "Game Development",
+      "pos": [
+        -40,
+        22,
+        -48
+      ],
+      "width": 460,
+      "body": "- **2023** [VoxelFrame_UE4](https://github.com/ActivePeter/VoxelFrame_UE4): a Minecraft-inspired voxel game on Unreal Engine 4.\n- **2022** [VoxelFrame](https://github.com/ActivePeter/VoxelFrame): voxel game framework, OpenGL and Unity implementations.\n- **2021** [paecs](https://github.com/ActivePeter/paecs): a simple ECS implementation in C++."
+    },
+    {
+      "id": "web-embedded",
+      "title": "Web, UI & Embedded",
+      "pos": [
+        -64,
+        14,
+        -8
+      ],
+      "width": 460,
+      "body": "- **2022** [paNote](https://github.com/ActivePeter/paNote): mesh-structured note-taking with Anki-style spaced repetition.\n- **2022** [paRobotArm](https://github.com/ActivePeter/paRobotArm): lightweight ESP32 robot arm based on paMcuLib.\n- **2021** [paMcuLib](https://github.com/ActivePeter/paMcuLib): common library for microcontroller development.\n- **2020** [2020_TI_competion_question_A](https://github.com/ActivePeter/2020_TI_competion_question_A): ESP32-based solution for the TI competition."
+    },
+    {
+      "id": "blogs",
+      "title": "Blogs · 知乎",
+      "pos": [
+        -24,
+        12,
+        32
+      ],
+      "width": 520,
+      "body": "- [Skill和普通文档有什么区别：从 Codex 源码看 skill 的作用](https://zhuanlan.zhihu.com/p/2075360627430896913)\n- [LLM推理调度漫游：局部性与负载均衡的权衡关系](https://zhuanlan.zhihu.com/p/2070197602965050628)\n- [仅需一个脚本就能将目录转s3 服务，FluxonFS vs Alluxio 5x吞吐](https://zhuanlan.zhihu.com/p/2069474802478454230)\n- [单机最高Mooncake 6x 吞吐：让 Fluxon KV 支持 DRAM + SSD 多级缓存](https://zhuanlan.zhihu.com/p/2060716360108397913)\n- [Fluxon KV 基础版解析：面向 AI 数据面的分层架构可扩展设计](https://zhuanlan.zhihu.com/p/2057107676367266274)"
+    }
+  ]
+}

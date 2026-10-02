@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="icon" href="data:," />
+    <title>RBMC Web Client</title>
+    <style>
+      :root {
+        --app-vw: 100vw;
+        --app-vh: 100vh;
+      }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; min-width: 100%; min-height: 100%; overflow: hidden; background: #000; touch-action: none; }
+      body { position: relative; }
+      canvas { display: block; touch-action: none; }
+      #bevy-root {
+        position: fixed;
+        inset: 0;
+        width: var(--app-vw);
+        height: var(--app-vh);
+        width: 100dvw;
+        height: 100dvh;
+        overflow: hidden;
+        z-index: 0;
+      }
+      #bevy-canvas {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100%;
+        min-height: 100%;
+        outline: none;
+        touch-action: none;
+      }
+      #hint { position: fixed; left: 12px; top: 12px; color: #fff; font-family: sans-serif; font-size: 14px; z-index: 20; }
+      #exit-btn {
+        position: fixed;
+        right: 12px;
+        top: 12px;
+        width: 72px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(0,0,0,0.35);
+        color: #fff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        user-select: none;
+        -webkit-user-select: none;
+        z-index: 20;
+      }
+      #exit-btn:active { background: rgba(255,255,255,0.18); }
+      #fullscreen-btn {
+        position: fixed;
+        right: 94px;
+        top: 12px;
+        width: 104px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.30);
+        background: rgba(31,92,145,0.58);
+        color: #fff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        user-select: none;
+        -webkit-user-select: none;
+        z-index: 40;
+      }
+      #fullscreen-btn:active { background: rgba(65,145,210,0.78); }
+      :fullscreen #bevy-root,
+      :-webkit-full-screen #bevy-root {
+        width: 100vw !important;
+        height: 100vh !important;
+      }
+      #perf {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        top: 64px;
+        max-width: 720px;
+        max-height: calc(100% - 80px);
+        overflow: auto;
+        margin: 0;
+        padding: 10px 12px;
+        color: #eaeaea;
+        background: rgba(0, 0, 0, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        white-space: pre;
+        pointer-events: none;
+        z-index: 20;
+      }
+      /* Mobile/touch UI overlay (created dynamically by JS). */
+      #touch-ui { position: fixed; inset: 0; pointer-events: none; font-family: sans-serif; z-index: 30; }
+      #touch-ui * { box-sizing: border-box; }
+      .touch-lookpad {
+        position: absolute; top: 0; bottom: 0; left: 50%; right: 0;
+        pointer-events: auto;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
+      .touch-btn {
+        position: absolute;
+        width: 56px; height: 56px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        pointer-events: auto;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
+      .touch-btn.active { background: rgba(255,255,255,0.28); }
+      .touch-btn.wide { width: 84px; }
+      .touch-btn.tall { height: 84px; }
+      .touch-label {
+        position: absolute;
+        pointer-events: none;
+        color: rgba(255,255,255,0.85);
+        font-size: 12px;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      }
+
+      /* Desktop + touch hotbar (MC-like minimal). */
+      #hotbar {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        padding: 10px 12px;
+        background: rgba(0,0,0,0.35);
+        border: 1px solid rgba(255,255,255,0.16);
+        border-radius: 12px;
+        pointer-events: auto;
+        user-select: none;
+        -webkit-user-select: none;
+        z-index: 20;
+      }
+      .hb-slot {
+        width: 68px;
+        height: 52px;
+        padding: 6px 6px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.10);
+        color: #fff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        line-height: 1.05;
+        white-space: pre;
+        text-align: left;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+      .hb-slot.active {
+        background: rgba(255,255,255,0.22);
+        border-color: rgba(255,255,255,0.55);
+      }
+      #create-palette {
+        position: fixed;
+        right: 12px;
+        top: 58px;
+        width: min(310px, calc(100vw - 24px));
+        max-height: calc(100vh - 132px);
+        overflow: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+        padding: 8px;
+        border: 1px solid rgba(222, 166, 72, 0.55);
+        border-radius: 10px;
+        background: rgba(22, 17, 12, 0.78);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        z-index: 25;
+      }
+      .create-tool {
+        min-height: 29px;
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 6px;
+        background: rgba(172, 112, 42, 0.20);
+        color: #f5e4c5;
+        font-size: 11px;
+        text-align: left;
+        padding: 5px 7px;
+      }
+      .create-tool.active {
+        background: rgba(221, 151, 54, 0.62);
+        border-color: rgba(255, 225, 162, 0.9);
+        color: #fff;
+      }
+      .create-group {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+        padding: 3px 4px 1px;
+        color: #ffd78b;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        border-bottom: 1px solid rgba(222, 166, 72, 0.35);
+      }
+      #create-status {
+        position: fixed;
+        right: 334px;
+        bottom: 104px;
+        max-width: min(460px, calc(100vw - 24px));
+        padding: 7px 9px;
+        border-radius: 7px;
+        background: rgba(0,0,0,0.58);
+        color: #f6d895;
+        font: 11px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        white-space: pre-wrap;
+        pointer-events: none;
+        z-index: 25;
+      }
+      #create-action-guide {
+        position: fixed;
+        left: 50%;
+        bottom: 112px;
+        transform: translateX(-50%);
+        width: min(620px, calc(100vw - 40px));
+        box-sizing: border-box;
+        padding: 9px 13px;
+        border: 2px solid rgba(112, 206, 255, 0.90);
+        border-radius: 9px;
+        background: rgba(6, 15, 22, 0.86);
+        color: #fff4cc;
+        font: 700 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        text-align: center;
+        white-space: pre-wrap;
+        text-shadow: 0 1px 2px #000;
+        pointer-events: none;
+        z-index: 29;
+      }
+      #create-action-guide[hidden] { display: none; }
+      #block-inspector {
+        position: fixed;
+        left: 50%;
+        top: 58px;
+        transform: translateX(-50%);
+        width: max-content;
+        min-width: 270px;
+        max-width: min(460px, calc(100vw - 40px));
+        box-sizing: border-box;
+        padding: 9px 12px;
+        border: 1px solid rgba(137, 211, 255, 0.82);
+        border-left-width: 4px;
+        border-radius: 7px;
+        background: rgba(5, 12, 18, 0.82);
+        box-shadow: 0 4px 18px rgba(0,0,0,0.36);
+        color: #e8f7ff;
+        font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        white-space: pre-wrap;
+        text-shadow: 0 1px 2px #000;
+        pointer-events: none;
+        z-index: 28;
+      }
+      #block-inspector[hidden] { display: none; }
+      @media (max-width: 760px), (pointer: coarse) {
+        #create-palette { width: 220px; max-height: 42vh; }
+        #create-status { right: 12px; bottom: 124px; }
+        #create-action-guide { bottom: 190px; font-size: 12px; }
+        #block-inspector { top: 48px; min-width: 220px; font-size: 11px; }
+      }
+    </style>
+  <link rel="modulepreload" href="/rbmc_web_client-d18e07801d5a34c1.js" crossorigin="anonymous" integrity="sha384-CLpwL2mn6vBm0gVcqmoLV1O1H9pq9MRFg3Unn0XQ0VcqztPEm+Eqh/C8be06NiYl"><link rel="preload" href="/rbmc_web_client-d18e07801d5a34c1_bg.wasm" crossorigin="anonymous" integrity="sha384-Y8L267sLPcua2hNA25ZZv7VMj/bjJm4o6repfamS/H5h7Z8iatVQWi2/q7Wz58OG" as="fetch" type="application/wasm"></head>
+  <body>
+    <div id="bevy-root">
+      <canvas id="bevy-canvas" tabindex="0"></canvas>
+    </div>
+    <div id="hint">点击画面锁定鼠标；<code>Esc</code> 或“退出鼠标”解锁；WASD 移动，空格跳跃，左键拆除，右键放置；<code>F3</code> 性能信息。</div>
+    <div id="fullscreen-btn" role="button" tabindex="0" aria-label="切换全屏">全屏</div>
+    <div id="exit-btn" aria-label="退出鼠标锁定">退出鼠标</div>
+    <pre id="perf" hidden></pre>
+    <pre id="status">Loading...</pre>
+    <div id="hotbar" aria-label="Hotbar">
+      <div class="hb-slot" id="hb-slot-1" data-slot="1">1</div>
+      <div class="hb-slot" id="hb-slot-2" data-slot="2">2</div>
+      <div class="hb-slot" id="hb-slot-3" data-slot="3">3</div>
+      <div class="hb-slot" id="hb-slot-4" data-slot="4">4</div>
+      <div class="hb-slot" id="hb-slot-5" data-slot="5">5</div>
+      <div class="hb-slot" id="hb-slot-6" data-slot="6">6</div>
+      <div class="hb-slot" id="hb-slot-7" data-slot="7">7</div>
+      <div class="hb-slot" id="hb-slot-8" data-slot="8">8</div>
+      <div class="hb-slot" id="hb-slot-9" data-slot="9">9</div>
+    </div>
+    <div id="create-palette" aria-label="机械动力工具栏">
+      <div class="create-group">操作与动力源</div>
+      <button class="create-tool active" data-create-kind="0" title="拆除方块、操作拉杆和配置机械">普通工具</button>
+      <button class="create-tool" data-create-kind="1" title="提供稳定旋转动力；后续轴件会自动吸附">创造电机</button>
+      <button class="create-tool" data-create-kind="2" title="用流水产生旋转动力">水车</button>
+      <button class="create-tool" data-create-kind="3" title="大型水力动力源">大型水车</button>
+      <button class="create-tool" data-create-kind="4" title="手动提供短时旋转动力">手摇曲柄</button>
+
+      <div class="create-group">传动组件</div>
+      <button class="create-tool" data-create-kind="5" title="同轴相邻时直接传递转速">传动轴</button>
+      <button class="create-tool" data-create-kind="6" title="相邻并咬合后反向等速传动">小齿轮</button>
+      <button class="create-tool" data-create-kind="7" title="可与大小齿轮或垂直大齿轮咬合">大齿轮</button>
+      <button class="create-tool" data-create-kind="8" title="把一根轴的动力转到垂直方向">齿轮箱</button>
+      <button class="create-tool" data-create-kind="9" title="红石通电时断开输出">离合器</button>
+      <button class="create-tool" data-create-kind="10" title="红石通电时反转输出">反转箱</button>
+      <button class="create-tool" data-create-kind="11" title="同朝向箱体之间传递动力">链传动箱</button>
+      <button class="create-tool" data-create-kind="20" title="依次选择两根平行传动轴生成传送带">传送带（选两根轴）</button>
+
+      <div class="create-group">自动控制与龙门</div>
+      <button id="create-sequenced-gearshift" class="create-tool" data-create-kind="28" title="收到上升沿后按程序控制距离、角度和等待">序列变速箱</button>
+      <button id="create-gantry-shaft" class="create-tool" data-create-kind="29" title="连续铺成直线，作为滑车运动轨道">龙门轴</button>
+      <button id="create-gantry-carriage" class="create-tool" data-create-kind="30" title="点击龙门轴侧面安装，沿轴线移动">龙门滑车</button>
+
+      <div class="create-group">垂直钻机与结构</div>
+      <button id="create-rope-pulley" class="create-tool" data-create-kind="31" title="由水平传动轴驱动，向下收放整台结构">绳索滑轮</button>
+      <button id="create-rope" class="create-tool" data-create-kind="32" title="放在滑轮正下方，可连续延长初始悬挂距离">绳索</button>
+      <button id="create-pulley-magnet" class="create-tool" data-create-kind="33" title="放在绳索末端，吸住正下方的移动结构">滑轮磁铁</button>
+      <button id="create-linear-chassis" class="create-tool" data-create-kind="34" title="黏性端可抓取同轴连续方块，钻机安全默认范围 1 格">线性底盘</button>
+      <button id="create-super-glue" class="create-tool" data-create-kind="35" title="可连接任意两个共享面的实体方块，包括龙门滑车、绳索滑轮、底盘、保险库和钻头。不能跨空气或斜角胶合。">强力胶（两块贴面）</button>
+      <button id="create-item-vault" class="create-tool" data-create-kind="37" title="用强力胶连接到底盘；自动接收移动钻头产物，满仓安全停机">随车物品保险库</button>
+
+      <div class="create-group">加工组件</div>
+      <button class="create-tool" data-create-kind="12">鼓风机</button>
+      <button class="create-tool" data-create-kind="13">磨盘</button>
+      <button class="create-tool" data-create-kind="14">粉碎轮</button>
+      <button class="create-tool" data-create-kind="15">动力冲压机</button>
+      <button class="create-tool" data-create-kind="16">动力搅拌器</button>
+      <button class="create-tool" data-create-kind="17">动力锯</button>
+      <button class="create-tool" data-create-kind="18">动力钻头</button>
+      <button class="create-tool" data-create-kind="19">机械手</button>
+
+      <div class="create-group">红石逻辑</div>
+      <button class="create-tool" data-create-kind="21">红石导线</button>
+      <button class="create-tool" data-create-kind="22">拉杆</button>
+      <button class="create-tool" data-create-kind="23" title="两个触点面对面接触时输出信号">红石触点</button>
+      <button class="create-tool" data-create-kind="24">置位锁存器</button>
+      <button class="create-tool" data-create-kind="25">翻转锁存器</button>
+      <button class="create-tool" data-create-kind="26">脉冲中继器</button>
+      <button class="create-tool" data-create-kind="27">脉冲延长器</button>
+      <button class="create-tool" data-create-kind="36" title="背面贴住绳索滑轮，输出到底或回顶物理状态">滑轮限位开关</button>
+    </div>
+    <div id="create-status">当前工具：普通工具</div>
+    <div id="create-action-guide" hidden></div>
+    <div id="block-inspector" hidden></div>
+    <script>
+      (function () {
+        let lastWidth = -1;
+        let lastHeight = -1;
+        function syncViewport() {
+          const vv = window.visualViewport;
+          const width = Math.max(1, Math.round((vv && vv.width) || window.innerWidth || document.documentElement.clientWidth || 1));
+          const height = Math.max(1, Math.round((vv && vv.height) || window.innerHeight || document.documentElement.clientHeight || 1));
+          if (width === lastWidth && height === lastHeight) return;
+          lastWidth = width;
+          lastHeight = height;
+          const root = document.documentElement;
+          const host = document.getElementById("bevy-root");
+          const canvas = document.getElementById("bevy-canvas");
+          if (width > 0) root.style.setProperty("--app-vw", width + "px");
+          if (height > 0) root.style.setProperty("--app-vh", height + "px");
+          if (host) {
+            host.style.width = width + "px";
+            host.style.height = height + "px";
+          }
+          if (canvas) {
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+          }
+        }
+
+        window.__rbmc_sync_viewport = syncViewport;
+        window.addEventListener("resize", syncViewport, { passive: true });
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("resize", syncViewport, { passive: true });
+          window.visualViewport.addEventListener("scroll", syncViewport, { passive: true });
+        }
+        document.addEventListener("fullscreenchange", function () {
+          lastWidth = -1;
+          lastHeight = -1;
+          requestAnimationFrame(syncViewport);
+          setTimeout(syncViewport, 180);
+        });
+        document.addEventListener("webkitfullscreenchange", function () {
+          lastWidth = -1;
+          lastHeight = -1;
+          requestAnimationFrame(syncViewport);
+          setTimeout(syncViewport, 180);
+        });
+        document.addEventListener("DOMContentLoaded", syncViewport, { once: true });
+        syncViewport();
+      })();
+    </script>
+    <script>
+      // Explicit fullscreen control. Browsers require this to run directly from a user gesture.
+      (function () {
+        const button = document.getElementById("fullscreen-btn");
+        const target = document.documentElement;
+        if (!button || !target) return;
+
+        function fullscreenElement() {
+          return document.fullscreenElement || document.webkitFullscreenElement || null;
+        }
+        function updateLabel() {
+          button.textContent = fullscreenElement() ? "退出全屏" : "全屏";
+          if (window.__rbmc_sync_viewport) window.__rbmc_sync_viewport();
+        }
+        async function toggleFullscreen(ev) {
+          window.__rbmc_ui_click = 1;
+          try {
+            if (fullscreenElement()) {
+              const exit = document.exitFullscreen || document.webkitExitFullscreen;
+              if (exit) await exit.call(document);
+            } else {
+              const enter = target.requestFullscreen || target.webkitRequestFullscreen;
+              if (enter) {
+                await enter.call(target, { navigationUI: "hide" });
+              } else {
+                // Embedded browsers may deny the API; the fixed viewport layout still fills its plane.
+                document.body.classList.add("viewport-fill");
+                window.scrollTo(0, 0);
+              }
+            }
+          } catch (error) {
+            console.warn("Fullscreen request was rejected", error);
+          }
+          updateLabel();
+          if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+        }
+        button.addEventListener("pointerdown", toggleFullscreen);
+        button.addEventListener("keydown", function (ev) {
+          if (ev.code === "Enter" || ev.code === "Space") toggleFullscreen(ev);
+        });
+        document.addEventListener("fullscreenchange", updateLabel);
+        document.addEventListener("webkitfullscreenchange", updateLabel);
+        updateLabel();
+      })();
+    </script>
+    <script>
+      (function () {
+        const status = document.getElementById("status");
+        if (!status) return;
+        status.style.position = "fixed";
+        status.style.left = "12px";
+        status.style.top = "36px";
+        status.style.color = "#fff";
+        status.style.fontFamily = "monospace";
+        status.style.fontSize = "12px";
+        status.style.margin = "0";
+        status.style.whiteSpace = "pre-wrap";
+        status.style.maxWidth = "calc(100% - 24px)";
+        status.style.zIndex = "20";
+
+        function setStatus(s) { status.textContent = String(s); }
+        function fmtErr(e) {
+          if (!e) return "unknown";
+          if (e instanceof Error) return e.stack || e.message || String(e);
+          if (typeof e === "object") {
+            try { return JSON.stringify(e); } catch (_) { return String(e); }
+          }
+          return String(e);
+        }
+
+        setStatus("Loading... (if stuck, open DevTools console)");
+
+        window.addEventListener("TrunkApplicationStarted", function () {
+          setStatus("WASM started");
+          setTimeout(() => { status.textContent = ""; }, 1500);
+        });
+        // Capture resource/module load errors too.
+        window.addEventListener("error", function (ev) {
+          const message = ev && ev.message ? String(ev.message) : fmtErr(ev);
+          // winit uses a short-lived JS exception to unwind its event loop. It is expected and
+          // explicitly says it is not an error; showing it as a fatal HUD message is misleading.
+          if (message.includes("Using exceptions for control flow")) {
+            window.__rbmc_wasm_started = true;
+            status.textContent = "";
+            return;
+          }
+          setStatus("Error: " + message);
+        }, true);
+
+        window.addEventListener("unhandledrejection", function (ev) {
+          setStatus("Unhandled promise rejection: " + fmtErr(ev && ev.reason));
+        });
+      })();
+    </script>
+    <script>
+      // Hotbar clicks (works on desktop + touch). Rust polls `window.__rbmc_hotbar_cmd`.
+      (function () {
+        const hb = document.getElementById("hotbar");
+        if (!hb) return;
+        function sendCmd(slot) {
+          window.__rbmc_hotbar_cmd = { slot: slot|0 };
+        }
+        hb.addEventListener("pointerdown", function (ev) {
+          const t = ev.target;
+          if (!t || !t.getAttribute) return;
+          // Avoid canvas pointer-lock handlers seeing this click.
+          window.__rbmc_ui_click = 1;
+          const slot = parseInt(t.getAttribute("data-slot") || "0", 10) || 0;
+          sendCmd(slot);
+          ev.preventDefault();
+          ev.stopPropagation();
+        });
+      })();
+    </script>
+    <script>
+      // Create palette. Rust consumes the numeric command and remains authoritative for placement.
+      (function () {
+        const palette = document.getElementById("create-palette");
+        if (!palette) return;
+        palette.addEventListener("pointerdown", function (ev) {
+          const target = ev.target && ev.target.closest ? ev.target.closest("[data-create-kind]") : null;
+          if (!target) return;
+          const kind = parseInt(target.getAttribute("data-create-kind") || "0", 10) || 0;
+          window.__rbmc_ui_click = 1;
+          window.__rbmc_create_tool_cmd = { kind: kind };
+          palette.querySelectorAll(".create-tool").forEach((button) => {
+            button.classList.toggle("active", button === target);
+          });
+          ev.preventDefault();
+          ev.stopPropagation();
+        });
+      })();
+    </script>
+    <script>
+      // Exit / blur helper: releases pointer lock and prevents the "click-to-lock" handler from re-locking.
+      (function () {
+        const btn = document.getElementById("exit-btn");
+        if (!btn) return;
+        function unlock() {
+          window.__rbmc_ui_click = 1;
+          window.__rbmc_unlock = 1;
+          try { document.exitPointerLock(); } catch (_) {}
+          try {
+            const ae = document.activeElement;
+            if (ae && ae.blur) ae.blur();
+          } catch (_) {}
+        }
+        btn.addEventListener("pointerdown", function (ev) {
+          unlock();
+          ev.preventDefault();
+          ev.stopPropagation();
+        });
+
+        // Sync: the browser may release pointer lock (e.g. Escape) without any JS event we can catch.
+        document.addEventListener("pointerlockchange", function () {
+          if (!document.pointerLockElement) {
+            window.__rbmc_unlock = 1;
+          }
+        }, true);
+
+        // Some platforms don't deliver an Escape key event to the app while pointer-locked,
+        // so also provide a fallback key to unlock.
+        document.addEventListener("keydown", function (ev) {
+          const code = ev && ev.code ? String(ev.code) : "";
+          if (code === "Escape" || code === "KeyP" || code === "Backspace") {
+            unlock();
+            try { ev.preventDefault(); } catch (_) {}
+            try { ev.stopPropagation(); } catch (_) {}
+          }
+        }, true);
+      })();
+    </script>
+    <script>
+      // Touch controls: minimal DOM overlay that drives a shared window.__rbmc_controls object.
+      // - Right half drag: look (yaw/pitch)
+      // - Buttons: move/jump/break/place/select
+      (function () {
+        const q = new URLSearchParams(location.search || "");
+        const enableTouch = q.get("touch") === "1" || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+        if (!enableTouch) return;
+
+        const controls = (window.__rbmc_controls = {
+          move_x: 0,
+          move_z: 0,
+          jump: false,
+          look_dx: 0,
+          look_dy: 0,
+          break_click: false,
+          place_click: false,
+          selected: 1,
+          tool: 0, // 0 = block tool, 1 = bucket tool
+        });
+
+        const overlay = document.createElement("div");
+        overlay.id = "touch-ui";
+
+        const lookpad = document.createElement("div");
+        lookpad.className = "touch-lookpad";
+        overlay.appendChild(lookpad);
+
+        function mkBtn(id, text) {
+          const b = document.createElement("div");
+          b.className = "touch-btn";
+          b.id = id;
+          b.textContent = text;
+          overlay.appendChild(b);
+          return b;
+        }
+
+        // Layout (simple absolute positions; tuned for phone portrait).
+        // Use safe area insets when present.
+        const safeL = "env(safe-area-inset-left, 0px)";
+        const safeR = "env(safe-area-inset-right, 0px)";
+        const safeB = "env(safe-area-inset-bottom, 0px)";
+        const pad = 12;
+
+        const btnW = mkBtn("btn-w", "W");
+        const btnA = mkBtn("btn-a", "A");
+        const btnS = mkBtn("btn-s", "S");
+        const btnD = mkBtn("btn-d", "D");
+        const btnJump = mkBtn("btn-jump", "JUMP");
+        btnJump.classList.add("wide");
+        const btnBreak = mkBtn("btn-break", "BREAK");
+        btnBreak.classList.add("wide");
+        const btnPlace = mkBtn("btn-place", "PLACE");
+        btnPlace.classList.add("wide");
+        const btn1 = mkBtn("btn-1", "1");
+        const btn2 = mkBtn("btn-2", "2");
+        const btn3 = mkBtn("btn-3", "3");
+        const btnBkt = mkBtn("btn-bkt", "BKT");
+
+        // Move cluster.
+        btnW.style.left = `calc(${safeL} + ${pad + 56}px)`;
+        btnW.style.bottom = `calc(${safeB} + ${pad + 112}px)`;
+        btnA.style.left = `calc(${safeL} + ${pad}px)`;
+        btnA.style.bottom = `calc(${safeB} + ${pad + 56}px)`;
+        btnS.style.left = `calc(${safeL} + ${pad + 56}px)`;
+        btnS.style.bottom = `calc(${safeB} + ${pad + 56}px)`;
+        btnD.style.left = `calc(${safeL} + ${pad + 112}px)`;
+        btnD.style.bottom = `calc(${safeB} + ${pad + 56}px)`;
+
+        // Action buttons on the right.
+        btnJump.style.right = `calc(${safeR} + ${pad}px)`;
+        btnJump.style.bottom = `calc(${safeB} + ${pad + 56}px)`;
+        btnBreak.style.right = `calc(${safeR} + ${pad}px)`;
+        btnBreak.style.bottom = `calc(${safeB} + ${pad + 56 + 64}px)`;
+        btnPlace.style.right = `calc(${safeR} + ${pad}px)`;
+        btnPlace.style.bottom = `calc(${safeB} + ${pad}px)`;
+
+        // Select buttons near top right.
+        btn1.style.right = `calc(${safeR} + ${pad}px)`;
+        btn1.style.top = `${pad}px`;
+        btn2.style.right = `calc(${safeR} + ${pad + 60}px)`;
+        btn2.style.top = `${pad}px`;
+        btn3.style.right = `calc(${safeR} + ${pad + 120}px)`;
+        btn3.style.top = `${pad}px`;
+        btnBkt.style.right = `calc(${safeR} + ${pad + 180}px)`;
+        btnBkt.style.top = `${pad}px`;
+
+        document.body.appendChild(overlay);
+
+        const pressed = {
+          w: new Set(),
+          a: new Set(),
+          s: new Set(),
+          d: new Set(),
+          jump: new Set(),
+        };
+
+        function updateMove() {
+          const mx = (pressed.d.size ? 1 : 0) + (pressed.a.size ? -1 : 0);
+          const mz = (pressed.w.size ? 1 : 0) + (pressed.s.size ? -1 : 0);
+          controls.move_x = mx;
+          controls.move_z = mz;
+          controls.jump = pressed.jump.size > 0;
+        }
+
+        function bindHold(btn, key) {
+          btn.addEventListener("pointerdown", function (ev) {
+            window.__rbmc_ui_click = 1;
+            ev.preventDefault();
+            ev.stopPropagation();
+            btn.classList.add("active");
+            try { btn.setPointerCapture(ev.pointerId); } catch (_) {}
+            pressed[key].add(ev.pointerId);
+            updateMove();
+          });
+          function up(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            pressed[key].delete(ev.pointerId);
+            if (pressed[key].size === 0) btn.classList.remove("active");
+            updateMove();
+          }
+          btn.addEventListener("pointerup", up);
+          btn.addEventListener("pointercancel", up);
+          btn.addEventListener("lostpointercapture", up);
+        }
+
+        bindHold(btnW, "w");
+        bindHold(btnA, "a");
+        bindHold(btnS, "s");
+        bindHold(btnD, "d");
+        bindHold(btnJump, "jump");
+
+        function bindClick(btn, field) {
+          btn.addEventListener("pointerdown", function (ev) {
+            window.__rbmc_ui_click = 1;
+            ev.preventDefault();
+            ev.stopPropagation();
+            btn.classList.add("active");
+            try { btn.setPointerCapture(ev.pointerId); } catch (_) {}
+            controls[field] = true; // Rust will reset to false after consuming.
+          });
+          function up(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            btn.classList.remove("active");
+          }
+          btn.addEventListener("pointerup", up);
+          btn.addEventListener("pointercancel", up);
+          btn.addEventListener("lostpointercapture", up);
+        }
+
+        bindClick(btnBreak, "break_click");
+        bindClick(btnPlace, "place_click");
+
+        function bindSelect(btn, n) {
+          btn.addEventListener("pointerdown", function (ev) {
+            window.__rbmc_ui_click = 1;
+            ev.preventDefault();
+            ev.stopPropagation();
+            controls.selected = n;
+            controls.tool = 0;
+            // Visual highlight.
+            btn1.classList.toggle("active", n === 1);
+            btn2.classList.toggle("active", n === 2);
+            btn3.classList.toggle("active", n === 3);
+            btnBkt.classList.toggle("active", false);
+          });
+        }
+
+        bindSelect(btn1, 1);
+        bindSelect(btn2, 2);
+        bindSelect(btn3, 3);
+        btn1.classList.add("active");
+
+        btnBkt.addEventListener("pointerdown", function (ev) {
+          window.__rbmc_ui_click = 1;
+          ev.preventDefault();
+          ev.stopPropagation();
+          controls.tool = 1;
+          // Visual highlight.
+          btn1.classList.toggle("active", false);
+          btn2.classList.toggle("active", false);
+          btn3.classList.toggle("active", false);
+          btnBkt.classList.toggle("active", true);
+        });
+
+        // Look pad (right half drag).
+        let lookPid = null;
+        let lastX = 0;
+        let lastY = 0;
+        lookpad.addEventListener("pointerdown", function (ev) {
+          window.__rbmc_ui_click = 1;
+          ev.preventDefault();
+          ev.stopPropagation();
+          lookPid = ev.pointerId;
+          lastX = ev.clientX;
+          lastY = ev.clientY;
+          try { lookpad.setPointerCapture(ev.pointerId); } catch (_) {}
+        });
+        lookpad.addEventListener("pointermove", function (ev) {
+          if (lookPid !== ev.pointerId) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          const dx = ev.clientX - lastX;
+          const dy = ev.clientY - lastY;
+          lastX = ev.clientX;
+          lastY = ev.clientY;
+          // Accumulate; Rust consumes and resets each frame.
+          controls.look_dx += dx;
+          controls.look_dy += dy;
+        });
+        function lookUp(ev) {
+          if (lookPid !== ev.pointerId) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          lookPid = null;
+        }
+        lookpad.addEventListener("pointerup", lookUp);
+        lookpad.addEventListener("pointercancel", lookUp);
+        lookpad.addEventListener("lostpointercapture", lookUp);
+      })();
+    </script>
+    
+    
+    <!-- Blog build: text blocks projected from world coordinates, and the table of contents. The
+         body copy is DOM on purpose — Chinese text, link clicks and selection come for free.
+         Every element here is `hidden` until the blog build's Rust reveals it, and every rule below
+         that touches the game's own chrome only applies under `body.rbmc-blog` — the same page is
+         served by the game build, which must not grow a table of contents. -->
+    <div id="rbmc-text-layer" aria-hidden="false" hidden></div>
+    <nav id="rbmc-toc" hidden>
+      <h1>Yichen Zhong</h1>
+      <p class="rbmc-hint">WASD fly · Space / Shift up, down · Ctrl faster · click to look around, Esc for the cursor · click a title to fly there</p>
+      <div id="rbmc-toc-list"></div>
+    </nav>
+    <div id="rbmc-loading">
+      <span>loading…</span>
+      <small>The engine is a ~17 MB WebAssembly download the first time; after that the browser caches it.</small>
+    </div>
+    <style>
+      #rbmc-text-layer { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+      /* The copy lives on the panel in the world; this strip only carries the block's links, which
+         have to be real links. */
+      .rbmc-links {
+        position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); max-width: 60vw;
+        color: #eaf3fb; font: 13px/1.6 system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: rgba(10, 14, 20, 0.72); border: 1px solid rgba(120, 200, 255, 0.3);
+        border-radius: 8px; padding: 8px 14px; pointer-events: auto;
+      }
+      .rbmc-links h2 { margin: 0 0 4px; font-size: 13px; color: #8fd0ff; }
+      .rbmc-link-row p, .rbmc-link-row ul { margin: 0; padding: 0; list-style: none; }
+      .rbmc-link-row a { color: #7fd3ff; margin-right: 12px; }
+      #rbmc-toc {
+        position: fixed; top: 12px; left: 12px; z-index: 6; width: 210px; max-height: calc(100vh - 24px);
+        overflow: auto; color: #e8eef5; font: 13px/1.4 system-ui, "PingFang SC", sans-serif;
+        background: rgba(10, 14, 20, 0.66); border-radius: 10px; padding: 10px 12px;
+      }
+      #rbmc-toc h1 { margin: 0 0 4px; font-size: 15px; color: #8fd0ff; }
+      .rbmc-hint { margin: 0 0 8px; color: #9fb0c0; font-size: 11px; }
+      #rbmc-toc-list button {
+        display: block; width: 100%; margin: 3px 0; padding: 5px 8px; text-align: left; cursor: pointer;
+        color: #dbe7f3; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px; font: inherit;
+      }
+      #rbmc-toc-list button:hover { background: rgba(120, 200, 255, 0.18); }
+      /* The game's chrome — build palette ("操作与动力源"), hotbar, hint line, F3 panel, the
+         fullscreen/exit buttons — belongs to the game, not to a personal site. Scoped to the blog
+         body class so the game build keeps all of it. */
+      body.rbmc-blog #create-palette, body.rbmc-blog #hotbar, body.rbmc-blog #hint,
+      body.rbmc-blog #perf, body.rbmc-blog #status, body.rbmc-blog #fullscreen-btn,
+      body.rbmc-blog #exit-btn, body.rbmc-blog #touch-controls, body.rbmc-blog #lookpad,
+      body.rbmc-blog #movepad, body.rbmc-blog #create-status, body.rbmc-blog #block-inspector,
+      body.rbmc-blog #create-action-guide { display: none !important; }
+      #rbmc-loading {
+        position: fixed; inset: 0; display: flex; flex-direction: column; gap: 10px;
+        align-items: center; justify-content: center; text-align: center; padding: 0 24px; z-index: 7;
+        color: #cfe4f5; background: #05070a; font: 15px system-ui, sans-serif;
+      }
+      #rbmc-loading span { animation: rbmc-pulse 1.4s ease-in-out infinite; }
+      #rbmc-loading small { max-width: 420px; color: #7d8fa0; font-size: 12px; }
+      @keyframes rbmc-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+      /* Touch flight is not implemented: say so rather than leaving a phone visitor poking at a
+         world that will not move. */
+      @media (max-width: 760px), (pointer: coarse) {
+        body.rbmc-blog .rbmc-hint::after { content: " · touch flight is not supported yet — open this on a desktop"; }
+      }
+      /* `hidden` has to beat the id rules above, which it otherwise would not. */
+      #rbmc-loading[hidden], #rbmc-toc[hidden], #rbmc-text-layer[hidden] { display: none !important; }
+    </style>
+
+    
+<script type="module">
+import init, * as bindings from '/rbmc_web_client-d18e07801d5a34c1.js';
+const wasm = await init({ module_or_path: '/rbmc_web_client-d18e07801d5a34c1_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
+  </body>
+</html>
