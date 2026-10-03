@@ -46,39 +46,6 @@
       "body": "A custom VS Code distribution engineered for seamless vibe coding across projects and devices.\n\n[ActivePeter/vibe-vscode](https://github.com/ActivePeter/vibe-vscode)"
     },
     {
-      "id": "infra-earlier",
-      "title": "Infrastructure & Distributed Systems",
-      "pos": [
-        72,
-        14,
-        16
-      ],
-      "width": 500,
-      "body": "- **2024** [wasm_serverless](https://github.com/ActivePeter/wasm_serverless): serverless distributed system on WebAssembly, data-driven event graphs, integrated storage.\n- **2024** [telego](https://github.com/AI-Infra-Team/telego): all-in-one multi-cluster configuration manager.\n- **2023** [perf_cache](https://github.com/ActivePeter/Hackathon-2023/tree/master/baibaidui): distributed file block cache with a cache router.\n- **2023** [rust_concurr_skiplist](https://github.com/ActivePeter/rust_hackathon_kv): grow-only lock-free concurrent skip list in Rust.\n- **2022** [mit_6.824_learning](https://github.com/ActivePeter/mit_6.824_learning), [pakv_talentplan](https://github.com/ActivePeter/pakv_talentplan)\n- **2021** [learn_cmu15_445](https://github.com/ActivePeter/learn_cmu15_445), [learn_mit_s6.081](https://github.com/ActivePeter/learn_mit_s6.081)"
-    },
-    {
-      "id": "games",
-      "title": "Game Development",
-      "pos": [
-        -40,
-        22,
-        -48
-      ],
-      "width": 460,
-      "body": "- **2023** [VoxelFrame_UE4](https://github.com/ActivePeter/VoxelFrame_UE4): a Minecraft-inspired voxel game on Unreal Engine 4.\n- **2022** [VoxelFrame](https://github.com/ActivePeter/VoxelFrame): voxel game framework, OpenGL and Unity implementations.\n- **2021** [paecs](https://github.com/ActivePeter/paecs): a simple ECS implementation in C++."
-    },
-    {
-      "id": "web-embedded",
-      "title": "Web, UI & Embedded",
-      "pos": [
-        -64,
-        14,
-        -8
-      ],
-      "width": 460,
-      "body": "- **2022** [paNote](https://github.com/ActivePeter/paNote): mesh-structured note-taking with Anki-style spaced repetition.\n- **2022** [paRobotArm](https://github.com/ActivePeter/paRobotArm): lightweight ESP32 robot arm based on paMcuLib.\n- **2021** [paMcuLib](https://github.com/ActivePeter/paMcuLib): common library for microcontroller development.\n- **2020** [2020_TI_competion_question_A](https://github.com/ActivePeter/2020_TI_competion_question_A): ESP32-based solution for the TI competition."
-    },
-    {
       "id": "blogs",
       "title": "Blogs · 知乎",
       "pos": [
