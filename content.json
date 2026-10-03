@@ -31,8 +31,9 @@
         16,
         -40
       ],
-      "width": 480,
-      "body": "An AI-native distributed data plane built in Rust that supports high performance RPC, KV Cache, Message Queue, and File & Object Acceleration.\n\n[Tele-AI/Fluxon](https://github.com/Tele-AI/Fluxon)"
+      "width": 720,
+      "body": "An AI-native distributed data plane built in Rust that supports high performance RPC, KV Cache, Message Queue, and File & Object Acceleration.\n\n[Tele-AI/Fluxon](https://github.com/Tele-AI/Fluxon)",
+      "image": "images/fluxon-architecture.jpg"
     },
     {
       "id": "vibe-vscode",
@@ -42,8 +43,9 @@
         18,
         -20
       ],
-      "width": 440,
-      "body": "A custom VS Code distribution engineered for seamless vibe coding across projects and devices.\n\n[ActivePeter/vibe-vscode](https://github.com/ActivePeter/vibe-vscode)"
+      "width": 700,
+      "body": "A custom VS Code distribution engineered for seamless vibe coding across projects and devices.\n\n[ActivePeter/vibe-vscode](https://github.com/ActivePeter/vibe-vscode)",
+      "image": "images/vibe-vscode-workspace.jpg"
     },
     {
       "id": "blogs",
