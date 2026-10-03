@@ -1297,6 +1297,9 @@ function __wbg_get_imports() {
         __wbg_samplerParameteri_8e4c4bcead0ee669: function(arg0, arg1, arg2, arg3) {
             arg0.samplerParameteri(arg1, arg2 >>> 0, arg3);
         },
+        __wbg_scale_543277ecf8cf836b: function() { return handleError(function (arg0, arg1, arg2) {
+            arg0.scale(arg1, arg2);
+        }, arguments); },
         __wbg_scheduler_48482a9974eeacbd: function(arg0) {
             const ret = arg0.scheduler;
             return ret;
@@ -1736,7 +1739,7 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { dtor_idx: 2423, function: Function { arguments: [], shim_idx: 2424, ret: String, inner_ret: Some(String) }, mutable: false }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { dtor_idx: 2140, function: Function { arguments: [], shim_idx: 2141, ret: String, inner_ret: Some(String) }, mutable: false }) -> Externref`.
             const ret = makeClosure(arg0, arg1, wasm.wasm_bindgen_70348d73b1794e43___closure__destroy___dyn_core_ed718c3d60ebd546___ops__function__Fn_____Output___alloc_508e33bd5656020b___string__String__, wasm_bindgen_70348d73b1794e43___convert__closures_____invoke___alloc_508e33bd5656020b___string__String_);
             return ret;
         },
